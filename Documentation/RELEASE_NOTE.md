@@ -1,5 +1,37 @@
 # Release Notes
 
+## 5.0.0
+
+- Minimum system version upgraded to `iOS 10`
+- Network image loading supports customization[HXImageViewProtocol](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/Core/Config/HXImageViewProtocol.swift)
+  - [Kingfisher](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/KFImageView.swift)
+  - [SDWebImage](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/SDImageView.swift)
+  
+
+## 4.2.5
+
+### Resolved
+
+- [[766]](https://github.com/SilenceLove/HXPhotoPicker/issues/766)
+- [[754]](https://github.com/SilenceLove/HXPhotoPicker/issues/754)
+- [[751]](https://github.com/SilenceLove/HXPhotoPicker/issues/751)
+
+## 4.2.4
+
+### Add
+
+- Minimum system version upgraded to `iOS 13`
+- `Kingfisher` upgraded to `8.0`
+
+## 4.2.3.2
+
+### Resolved
+
+- [[727]](https://github.com/SilenceLove/HXPhotoPicker/issues/727)
+- [[730]](https://github.com/SilenceLove/HXPhotoPicker/issues/730)
+- [[731]](https://github.com/SilenceLove/HXPhotoPicker/issues/731)
+- [[732]](https://github.com/SilenceLove/HXPhotoPicker/issues/732)
+
 ## 4.2.3.1
 
 ### Resolved

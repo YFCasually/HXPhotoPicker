@@ -26,8 +26,7 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
         }
         let cell: PhotoPreviewViewCell
         if photoAsset.mediaType == .photo {
-            if photoAsset.mediaSubType == .livePhoto ||
-                photoAsset.mediaSubType == .localLivePhoto {
+            if photoAsset.mediaSubType.isLivePhoto {
                 cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: PreviewLivePhotoViewCell.className,
                     for: indexPath
@@ -49,6 +48,7 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
             let videoCell = cell as! PreviewVideoViewCell
             videoCell.videoPlayType = config.videoPlayType
             videoCell.statusBarShouldBeHidden = statusBarShouldBeHidden
+            videoCell.previewType = previewType
         }
         cell.contentMaximumZoomScale = config.maximumZoomScale
         cell.delegate = self
@@ -145,7 +145,10 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
         }
         let cell = getCell(for: currentPreviewIndex)
         cell?.requestPreviewAsset()
-        if let cell = cell {
+        if let cell {
+            if let videoCell = cell as? PreviewVideoControlViewCell, statusBarShouldBeHidden {
+                videoCell.showToolView()
+            }
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
                 previewDidEndDecelerating: cell.photoAsset,
@@ -192,7 +195,11 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             if currentCell?.photoAsset.mediaType == .video && config.singleClickCellAutoPlayVideo {
                 currentCell?.scrollContentView.videoView.stopPlay()
             }
-            videoCell?.showToolView()
+            if previewType != .browser {
+                videoCell?.hideToolView()
+            }else {
+                videoCell?.showToolView()
+            }
             if let liveCell = currentCell as? PreviewLivePhotoViewCell {
                 liveCell.showMark()
             }
@@ -200,7 +207,11 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             if currentCell?.photoAsset.mediaType == .video && config.singleClickCellAutoPlayVideo {
                 currentCell?.scrollContentView.videoView.startPlay()
             }
-            videoCell?.hideToolView()
+            if previewType != .browser {
+                videoCell?.showToolView()
+            }else {
+                videoCell?.hideToolView()
+            }
             if let liveCell = currentCell as? PreviewLivePhotoViewCell {
                 liveCell.hideMark()
             }
@@ -238,7 +249,6 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
     }
     
     func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell) {
-        #if canImport(Kingfisher)
         if let index = collectionView.indexPath(for: photoCell)?.item {
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
@@ -250,11 +260,9 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
         if config.isShowBottomView {
             photoToolbar.requestOriginalAssetBtyes()
         }
-        #endif
     }
     
     func photoCell(networkImagedownloadFailed photoCell: PhotoPreviewViewCell) {
-        #if canImport(Kingfisher)
         if let index = collectionView.indexPath(for: photoCell)?.item {
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
@@ -262,6 +270,5 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
                 atIndex: index
             )
         }
-        #endif
     }
 }

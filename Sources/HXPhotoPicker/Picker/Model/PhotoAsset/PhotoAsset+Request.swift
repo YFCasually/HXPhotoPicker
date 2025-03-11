@@ -7,9 +7,6 @@
 
 import UIKit
 import Photos
-#if canImport(Kingfisher)
-import Kingfisher
-#endif
 
 // MARK: Request Photo
 public extension PhotoAsset {
@@ -152,9 +149,13 @@ public extension PhotoAsset {
                     }
                     return
                 }
-                let image = UIImage(
-                    data: dataResult.imageData
-                )?.normalizedImage()
+                let image = {
+                    if self.mediaSubType.isHDRPhoto {
+                        return UIImage.HDRDecoded(dataResult.imageData)
+                    } else {
+                        return UIImage(data: dataResult.imageData)?.normalizedImage()
+                    }
+                }()
                 completion?(image, self)
             case .failure:
                 completion?(nil, self)
@@ -518,6 +519,20 @@ public extension PhotoAsset {
             }
             return nil
         }
+        func imageTargetCompressor(_ url: URL, _ imageTarget: Compression.ImageTarget) -> URL? {
+            guard let imageData = try? Data(contentsOf: url) else {
+                return nil
+            }
+            if FileManager.default.fileExists(atPath: url.path) {
+                try? FileManager.default.removeItem(at: url)
+            }
+            var image = UIImage(data: imageData)
+            image = image?.scaleToFillSize(size: imageTarget.size, mode: imageTarget.mode)
+            guard let data = PhotoTools.getImageData(for: image) else {
+                return nil
+            }
+            return PhotoTools.write(toFile: url, imageData: data)
+        }
         func videoCompressor(
             _ url: URL,
             _ exportParameter: VideoExportParameter,
@@ -552,44 +567,69 @@ public extension PhotoAsset {
                 }
             }
         }
-        if let imageCompression = compression?.imageCompressionQuality,
-           let videoExportParameter = compression?.videoExportParameter {
-            let group = DispatchGroup()
-            let imageQueue = DispatchQueue(label: "HXPhotoPicker.request.livephoto.imageurl")
-            var image_URL: URL?
-            var video_URL: URL?
-            var videoError: Error?
-            imageQueue.async(group: group, execute: DispatchWorkItem(block: {
-                image_URL = imageCompressor(imageURL, imageCompression)
-            }))
-            let videoQueue = DispatchQueue(label: "HXPhotoPicker.request.livephoto.videourl")
-            let semaphore = DispatchSemaphore(value: 0)
-            videoQueue.async(group: group, execute: DispatchWorkItem(block: {
-                videoCompressor(
-                    videoURL,
-                    videoExportParameter
-                ) {
-                    switch $0 {
-                    case .success(let url):
-                        video_URL = url
-                    case .failure(let error):
-                        videoError = error
+        
+        
+        if let videoExportParameter = compression?.videoExportParameter {
+            if compression?.imageCompressionQuality == nil,  compression?.imageTarget == nil {
+                DispatchQueue.global().async {
+                    videoCompressor(
+                        videoURL,
+                        videoExportParameter
+                    ) { result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(let url):
+                                completionFunc(.success(.init(imageURL: imageURL, videoURL: url)))
+                            case .failure(let error):
+                                completionFunc(.failure(error))
+                            }
+                        }
                     }
-                    semaphore.signal()
                 }
-                semaphore.wait()
-            }))
-            group.notify(queue: .main, work: DispatchWorkItem(block: {
-                if let image_URL, let video_URL {
-                    completionFunc(.success(.init(imageURL: image_URL, videoURL: video_URL)))
-                }else {
-                    if let videoError {
-                        completionFunc(.failure(.exportLivePhotoVideoURLFailed(videoError)))
+            }else {
+                let group = DispatchGroup()
+                let imageQueue = DispatchQueue(label: "HXPhotoPicker.request.livephoto.imageurl", qos: .userInteractive)
+                var image_URL: URL?
+                var video_URL: URL?
+                var videoError: Error?
+                if let imageCompression = compression?.imageCompressionQuality {
+                    imageQueue.async(group: group, execute: DispatchWorkItem(block: {
+                        image_URL = imageCompressor(imageURL, imageCompression)
+                    }))
+                }else if let imageTarget = compression?.imageTarget {
+                    imageQueue.async(group: group, execute: DispatchWorkItem(block: {
+                        image_URL = imageTargetCompressor(imageURL, imageTarget)
+                    }))
+                }
+                let videoQueue = DispatchQueue(label: "HXPhotoPicker.request.livephoto.videourl", qos: .userInteractive)
+                let semaphore = DispatchSemaphore(value: 0)
+                videoQueue.async(group: group, execute: DispatchWorkItem(block: {
+                    videoCompressor(
+                        videoURL,
+                        videoExportParameter
+                    ) {
+                        switch $0 {
+                        case .success(let url):
+                            video_URL = url
+                        case .failure(let error):
+                            videoError = error
+                        }
+                        semaphore.signal()
+                    }
+                    semaphore.wait()
+                }))
+                group.notify(queue: .main, work: DispatchWorkItem(block: {
+                    if let image_URL, let video_URL {
+                        completionFunc(.success(.init(imageURL: image_URL, videoURL: video_URL)))
                     }else {
-                        completionFunc(.failure(.imageCompressionFailed))
+                        if let videoError {
+                            completionFunc(.failure(.exportLivePhotoVideoURLFailed(videoError)))
+                        }else {
+                            completionFunc(.failure(.imageCompressionFailed))
+                        }
                     }
-                }
-            }))
+                }))
+            }
         }else if let imageCompression = compression?.imageCompressionQuality {
             DispatchQueue.global().async {
                 let url = imageCompressor(imageURL, imageCompression)
@@ -601,19 +641,14 @@ public extension PhotoAsset {
                     }
                 }
             }
-        }else if let videoExportParameter = compression?.videoExportParameter {
+        }else if let imageTarget = compression?.imageTarget {
             DispatchQueue.global().async {
-                videoCompressor(
-                    videoURL,
-                    videoExportParameter
-                ) { result in
-                    DispatchQueue.main.async {
-                        switch result {
-                        case .success(let url):
-                            completionFunc(.success(.init(imageURL: imageURL, videoURL: url)))
-                        case .failure(let error):
-                            completionFunc(.failure(error))
-                        }
+                let url = imageTargetCompressor(imageURL, imageTarget)
+                DispatchQueue.main.async {
+                    if let url {
+                        completionFunc(.success(.init(imageURL: url, videoURL: videoURL)))
+                    }else {
+                        completionFunc(.failure(.imageCompressionFailed))
                     }
                 }
             }
@@ -624,9 +659,7 @@ public extension PhotoAsset {
     
     class LocalLivePhotoRequest {
         var videoURL: URL
-        #if canImport(Kingfisher)
-        var imageTask: Kingfisher.DownloadTask?
-        #endif
+        var imageTask: ImageDownloadTask?
         var writer: AVAssetWriter?
         var videoInput: AVAssetWriterInput?
         var videoReader: AVAssetReader?
@@ -642,11 +675,9 @@ public extension PhotoAsset {
         
         public func cancelRequest() {
             isCancel = true
-            #if canImport(Kingfisher)
             if let task = imageTask {
-                task.cancel()
+                task.cancelHandler()
             }
-            #endif
             PhotoManager.shared.removeTask(videoURL)
             writer?.cancelWriting()
             videoInput?.markAsFinished()
@@ -698,11 +729,10 @@ public extension PhotoAsset {
                 failure: failure
             )
         }else if !imageURL.isFileURL && videoURL.isFileURL {
-            #if canImport(Kingfisher)
-            request.imageTask = KingfisherManager.shared.retrieveImage(with: imageURL) { result in
-                switch result {
+            request.imageTask = PhotoManager.ImageView.download(with: .init(downloadURL: imageURL), options: nil, progressHandler: nil) {
+                switch $0 {
                 case .success:
-                    let cachePath = ImageCache.default.cachePath(forKey: imageURL.cacheKey)
+                    let cachePath = PhotoManager.ImageView.getCachePath(forKey: PhotoManager.ImageView.getCacheKey(forURL: imageURL))
                     let cacheURL = URL(fileURLWithPath: cachePath)
                     self.writeLivePhoto(
                         request: request,
@@ -719,12 +749,6 @@ public extension PhotoAsset {
                     failure(self, nil, .imageDownloadFailed)
                 }
             }
-            #else
-            assert(
-                false,
-                "下载网络图片请导入 Kingfisher"
-            )
-            #endif
         }else if imageURL.isFileURL && !videoURL.isFileURL {
             PhotoManager.shared.downloadTask(with: videoURL) { url, _, _ in
                 guard let video_URL = url else {
@@ -744,11 +768,10 @@ public extension PhotoAsset {
                 )
             }
         }else {
-            #if canImport(Kingfisher)
-            request.imageTask = KingfisherManager.shared.retrieveImage(with: imageURL) { result in
-                switch result {
+            request.imageTask = PhotoManager.ImageView.download(with: .init(downloadURL: imageURL), options: nil, progressHandler: nil) {
+                switch $0 {
                 case .success:
-                    let cachePath = ImageCache.default.cachePath(forKey: imageURL.cacheKey)
+                    let cachePath = PhotoManager.ImageView.getCachePath(forKey: PhotoManager.ImageView.getCacheKey(forURL: imageURL))
                     let cacheURL = URL(fileURLWithPath: cachePath)
                     PhotoManager.shared.downloadTask(with: videoURL) { url, _, _ in
                         guard let video_URL = url else {
@@ -772,12 +795,6 @@ public extension PhotoAsset {
                     failure(self, nil, .imageDownloadFailed)
                 }
             }
-            #else
-            assert(
-                false,
-                "下载网络图片请导入 Kingfisher"
-            )
-            #endif
         }
         return request
     }

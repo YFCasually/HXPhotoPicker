@@ -40,8 +40,7 @@ public extension PhotoAsset {
         completion: @escaping AssetURLCompletion
     ) {
         if mediaType == .photo {
-            if mediaSubType == .livePhoto ||
-                mediaSubType == .localLivePhoto {
+            if mediaSubType.isLivePhoto {
                 getLivePhotoURL(
                     imageFileURL: fileConfig?.imageURL,
                     videoFileURL: fileConfig?.videoURL,
@@ -82,14 +81,12 @@ public extension PhotoAsset {
         compressionQuality: CGFloat? = nil,
         completion: @escaping AssetURLCompletion
     ) {
-        #if canImport(Kingfisher)
         if isNetworkAsset {
             getNetworkImageURL(
                 resultHandler: completion
             )
             return
         }
-        #endif
         requestImageURL(
             toFile: fileURL,
             compressionQuality: compressionQuality,

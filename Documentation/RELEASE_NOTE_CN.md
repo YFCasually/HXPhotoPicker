@@ -1,5 +1,38 @@
 # 更新日志
 
+## 5.0.0
+
+- 最低系统版本修改为`iOS 10`
+- 默认不支持GIF图片、网络图片加载支持自定义[HXImageViewProtocol](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/Core/Config/HXImageViewProtocol.swift)
+  - [GIF](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/GIFImageView.swift)
+  - [Kingfisher](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/KFImageView.swift)
+  - [SDWebImage](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/SDImageView.swift)
+- 优化RLT布局
+  
+## 4.2.5
+
+### 修复
+
+- [[766]](https://github.com/SilenceLove/HXPhotoPicker/issues/766)
+- [[754]](https://github.com/SilenceLove/HXPhotoPicker/issues/754)
+- [[751]](https://github.com/SilenceLove/HXPhotoPicker/issues/751)
+
+## 4.2.4
+
+### 新增
+
+- 最低系统版本升级为`iOS 13`
+- `Kingfisher`升级为`8.0`
+
+## 4.2.3.2
+
+### 修复
+
+- [[727]](https://github.com/SilenceLove/HXPhotoPicker/issues/727)
+- [[730]](https://github.com/SilenceLove/HXPhotoPicker/issues/730)
+- [[731]](https://github.com/SilenceLove/HXPhotoPicker/issues/731)
+- [[732]](https://github.com/SilenceLove/HXPhotoPicker/issues/732)
+
 ## 4.2.3.1
 
 ### 修复
