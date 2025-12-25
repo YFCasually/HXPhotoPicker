@@ -150,9 +150,14 @@ public class PhotoAlbumViewController: HXBaseViewController, PhotoAlbumControlle
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         delegate?.albumController(didAppear: self)
-        if #available(iOS 26.0, *) {
-            navigationController?.navigationBar.setNeedsUpdateProperties()
-        }
+//#if #available(iOS 26.0, *)
+//        
+//        if #available(iOS 26.0, *) {
+//            navigationController?.navigationBar.setNeedsUpdateProperties()
+//        }
+//#else
+//#endif
+
     }
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
