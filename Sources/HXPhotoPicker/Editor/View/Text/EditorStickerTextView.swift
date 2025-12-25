@@ -96,7 +96,7 @@ class EditorStickerTextView: UIView {
         flowLayout.scrollDirection = .horizontal
         flowLayout.minimumInteritemSpacing = 5
         flowLayout.itemSize = CGSize(width: 37, height: 37)
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        collectionView = HXCollectionView(frame: .zero, collectionViewLayout: flowLayout)
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -271,7 +271,7 @@ class EditorStickerTextView: UIView {
                 }
                 let buttonRect = convert(
                     .init(x: 0, y: firstTextButtonY, width: 50, height: 50),
-                    to: UIApplication._keyWindow
+                    to: UIApplication.hx_keyWindow
                 )
                 if buttonRect.maxY > keyboardFrame.minY {
                     textButton.y = height - (buttonRect.maxY - keyboardFrame.minY + 50)

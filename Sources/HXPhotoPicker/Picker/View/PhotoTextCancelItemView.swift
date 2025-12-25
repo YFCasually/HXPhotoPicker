@@ -24,12 +24,12 @@ public class PhotoTextCancelItemView: UIView, PhotoNavigationItem {
         button = UIButton(type: .system)
         button.setTitle(.textManager.picker.navigationCancelTitle.text, for: .normal)
         button.titleLabel?.font = .textManager.picker.navigationCancelTitleFont
+        if #available(iOS 15.0, *), !PhotoManager.isIos26Compatibility {
+            button.configuration = config.photoList.cancelButtonConfig
+        }
         button.addTarget(self, action: #selector(didCancelClick), for: .touchUpInside)
         addSubview(button)
-        if let textSize = button.titleLabel?.textSize {
-            button.size = textSize
-            size = button.size
-        }
+        
         setColor()
     }
     
@@ -43,6 +43,21 @@ public class PhotoTextCancelItemView: UIView, PhotoNavigationItem {
     @objc
     func didCancelClick() {
         itemDelegate?.photoControllerDidCancel()
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        let buttonSize = CGSize(width: width + 8, height: height + 10)
+        button.frame = CGRect(
+            x: (self.bounds.width - buttonSize.width) / 2,
+            y: (self.bounds.height - buttonSize.height) / 2,
+            width: buttonSize.width,
+            height: buttonSize.height
+        )
+    }
+    
+    public override func sizeThatFits(_ size: CGSize) -> CGSize {
+        return button.sizeThatFits(size)
     }
     
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

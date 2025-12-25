@@ -28,10 +28,6 @@ public struct PickerConfiguration: IndicatorTypeConfig, PhotoDebugLogsConfig, Ph
     /// Selector display style, effective when albumShowMode = .popup and fullscreen popup
     /// 选择器展示样式，当 albumShowMode = .popup 并且全屏弹出时有效
     /// rightSwipe: 是否允许右滑手势返回。与微信右滑手势返回一致
-    /// ```swift
-    /// /// 如果返回过程中没有显示背景视图，请将fromVC传入
-    /// config.pickerPresentStyle = .present(rightSwipe: .init(50, viewControlls: [FromVC.self]))
-    /// ```
     public var pickerPresentStyle: PickerPresentStyle = .present()
     
     /// If the built-in language is not enough, you can add a custom language text
@@ -80,6 +76,15 @@ public struct PickerConfiguration: IndicatorTypeConfig, PhotoDebugLogsConfig, Ph
     /// 选择模式
     public var selectMode: PickerSelectMode = .multiple
     
+    /// 禁用HDR
+    public var isDisableHDR: Bool = false
+    
+    /// 禁用LivePhoto
+    public var isDisableLivePhoto: Bool = false
+    
+    /// LivePhoto静音
+    public var isLivePhotoMuted: Bool = false
+    
     /// Photos and videos can be selected together
     /// 照片和视频可以一起选择
     public var allowSelectedTogether: Bool = true
@@ -100,7 +105,16 @@ public struct PickerConfiguration: IndicatorTypeConfig, PhotoDebugLogsConfig, Ph
     
     /// Album display mode
     /// 相册展示模式
-    public var albumShowMode: AlbumShowMode = .normal
+    public var albumShowMode: AlbumShowMode = .normal {
+        didSet {
+            #if canImport(UIKit.UIGlassEffect)
+            if #available(iOS 26.0, *), !PhotoManager.isIos26Compatibility, albumShowMode.isPop  {
+                photoList.leftNavigationItems = [PhotoPickerFilterItemView.self]
+                photoList.rightNavigationItems = [PhotoTextCancelItemView.self]
+            }
+            #endif
+        }
+    }
     
     /// Whether to sort by creation time when getting the resource list
     /// 获取资源列表时是否按创建时间排序

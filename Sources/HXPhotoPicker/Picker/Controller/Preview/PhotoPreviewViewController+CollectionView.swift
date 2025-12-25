@@ -39,6 +39,8 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
                     withReuseIdentifier: PreviewPhotoViewCell.className,
                     for: indexPath
                 ) as! PreviewPhotoViewCell
+                let photoCell = cell as! PreviewPhotoViewCell
+                photoCell.HDRMarkConfig = config.HDRMark
             }
         }else {
             cell = collectionView.dequeueReusableCell(
@@ -76,6 +78,11 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
             previewCellWillDisplay: myCell.photoAsset,
             at: indexPath.item
         )
+        pickerController.pickerDelegate?.pickerController(
+            pickerController,
+            previewCellWillDisplay: myCell,
+            at: indexPath.item
+        )
     }
     public func collectionView(
         _ collectionView: UICollectionView,
@@ -87,6 +94,11 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
         pickerController.pickerDelegate?.pickerController(
             pickerController,
             previewCellDidEndDisplaying: myCell.photoAsset,
+            at: indexPath.item
+        )
+        pickerController.pickerDelegate?.pickerController(
+            pickerController,
+            previewCellDidEndDisplaying: myCell,
             at: indexPath.item
         )
     }
@@ -107,11 +119,21 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
         if let photoAsset = photoAsset(for: currentIndex) {
             if previewType != .browser {
                 if photoAsset.mediaType == .video && pickerConfig.isSingleVideo {
-                    selectBoxControl.isHidden = true
-                    selectBoxControl.isEnabled = false
+                    if #available(iOS 16.0, *) {
+                        selectBoxItem.isHidden = true
+                        selectBoxItem.isEnabled = false
+                    } else {
+                        selectBoxControl.isHidden = true
+                        selectBoxControl.isEnabled = false
+                    }
                 }else {
-                    selectBoxControl.isHidden = false
-                    selectBoxControl.isEnabled = true
+                    if #available(iOS 16.0, *) {
+                        selectBoxItem.isHidden = false
+                        selectBoxItem.isEnabled = true
+                    } else {
+                        selectBoxControl.isHidden = false
+                        selectBoxControl.isEnabled = true
+                    }
                     updateSelectBox(photoAsset.isSelected, photoAsset: photoAsset)
                     selectBoxControl.isSelected = photoAsset.isSelected
                 }
@@ -152,6 +174,11 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
                 previewDidEndDecelerating: cell.photoAsset,
+                at: currentPreviewIndex
+            )
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewDidEndDecelerating: cell,
                 at: currentPreviewIndex
             )
         }
@@ -200,8 +227,8 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             }else {
                 videoCell?.showToolView()
             }
-            if let liveCell = currentCell as? PreviewLivePhotoViewCell {
-                liveCell.showMark()
+            if let photoAsset = currentCell?.photoAsset, photoAsset.mediaSubType.isHDRPhoto || photoAsset.mediaSubType.isLivePhoto {
+                currentCell?.showScrollContainerSubview()
             }
         }else {
             if currentCell?.photoAsset.mediaType == .video && config.singleClickCellAutoPlayVideo {
@@ -212,8 +239,8 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             }else {
                 videoCell?.hideToolView()
             }
-            if let liveCell = currentCell as? PreviewLivePhotoViewCell {
-                liveCell.hideMark()
+            if let photoAsset = currentCell?.photoAsset, photoAsset.mediaSubType.isHDRPhoto || photoAsset.mediaSubType.isLivePhoto {
+                currentCell?.hideScrollContainerSubview()
             }
         }
         if isShowToolbar {
@@ -271,4 +298,41 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             )
         }
     }
+    
+    func photoCell(_ photoCell: PhotoPreviewViewCell, HDRDidDisabled isDisabled: Bool) {
+        if let index = collectionView.indexPath(for: photoCell)?.item, let photoAsset = photoCell.photoAsset {
+            photoAsset.isDisableHDR = isDisabled
+            photoCell.cancelRequest()
+            photoCell.requestPreviewAsset()
+            
+            delegate?.previewViewController(self, updatePhotoAsset: photoAsset, at: index)
+        }
+    }
+    
+    func photoCell(_ photoCell: PhotoPreviewViewCell, livePhotoDidDisabled isDisabled: Bool) {
+        if let index = collectionView.indexPath(for: photoCell)?.item, let photoAsset = photoCell.photoAsset {
+            photoAsset.isDisableLivePhoto = isDisabled
+            if photoAsset.isDisableLivePhoto {
+                photoCell.scrollContentView.livePhotoView.stopPlayback()
+            }else {
+                photoCell.scrollContentView.livePhotoView.startPlayback(with: .full)
+            }
+            photoAsset.pFileSize = nil
+            photoCell.scrollContentView.livePhotoView.playbackGestureRecognizer.isEnabled = !photoAsset.isDisableLivePhoto
+            if isShowToolbar {
+                requestSelectedAssetFileSize()
+            }
+            delegate?.previewViewController(self, updatePhotoAsset: photoAsset, at: index)
+        }
+    }
+    
+    func photoCell(_ photoCell: PhotoPreviewViewCell, livePhotoDidMuted isMuted: Bool) {
+        if let index = collectionView.indexPath(for: photoCell)?.item, let photoAsset = photoCell.photoAsset {
+            photoAsset.isLivePhotoMuted = isMuted
+            photoCell.scrollContentView.livePhotoView.isMuted = photoAsset.isLivePhotoMuted
+            
+            delegate?.previewViewController(self, updatePhotoAsset: photoAsset, at: index)
+        }
+    }
+    
 }

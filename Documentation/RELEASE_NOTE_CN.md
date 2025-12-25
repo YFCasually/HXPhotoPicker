@@ -1,9 +1,65 @@
 # 更新日志
+    
+## 5.0.5
+
+- 优化适配`iOS 26`
+
+### 修复
+
+- [[847]](https://github.com/SilenceLove/HXPhotoPicker/issues/847)
+- [[840]](https://github.com/SilenceLove/HXPhotoPicker/issues/840)
+- 以及一些bug...
+    
+## 5.0.4
+
+- 兼容`iOS 26`
+
+### 修复
+
+- [[820]](https://github.com/SilenceLove/HXPhotoPicker/issues/820)
+- [[819]](https://github.com/SilenceLove/HXPhotoPicker/issues/819)
+- 以及一些bug...
+    
+## 5.0.3
+
+### 新增
+
+- Picker
+  - 添加可以控制`LivePhoto`播放/静音
+
+### 修复
+
+- [[809]](https://github.com/SilenceLove/HXPhotoPicker/issues/809)
+- [[805]](https://github.com/SilenceLove/HXPhotoPicker/issues/805)
+- [[803]](https://github.com/SilenceLove/HXPhotoPicker/issues/803)
+- 以及一些bug...
+    
+## 5.0.2
+
+### 修复
+
+- [[797]](https://github.com/SilenceLove/HXPhotoPicker/issues/797)
+- [[792]](https://github.com/SilenceLove/HXPhotoPicker/issues/792)
+
+## 5.0.1
+
+### 新增
+
+- 西班牙、葡萄牙语言
+
+### 修复
+
+- [[787]](https://github.com/SilenceLove/HXPhotoPicker/issues/787) 
+- [[784]](https://github.com/SilenceLove/HXPhotoPicker/issues/784)  
+- [[782]](https://github.com/SilenceLove/HXPhotoPicker/issues/782) 
+- [[777]](https://github.com/SilenceLove/HXPhotoPicker/issues/777)
+- [[776]](https://github.com/SilenceLove/HXPhotoPicker/issues/776)
+- [[775]](https://github.com/SilenceLove/HXPhotoPicker/issues/775)
 
 ## 5.0.0
 
 - 最低系统版本修改为`iOS 10`
-- 默认不支持GIF图片、网络图片加载支持自定义[HXImageViewProtocol](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/Core/Config/HXImageViewProtocol.swift)
+- 默认不支持GIF图片、网络图片加载支持自定义[HXImageViewProtocol](https://github.com/SilenceLove/HXPhotoPicker/blob/master/Sources/HXPhotoPicker/Core/Config/HXImageViewProtocol.swift)
   - [GIF](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/GIFImageView.swift)
   - [Kingfisher](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/KFImageView.swift)
   - [SDWebImage](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/SDImageView.swift)

@@ -244,7 +244,7 @@ extension PhotoTools {
             config.allowSelectedTogether = true
         }
         let wxColor = "#07C160".color
-        config.selectOptions = [.gifPhoto, .video]
+        config.selectOptions = [.gifPhoto, .livePhoto, .video]
         config.albumShowMode = .popup
         config.appearanceStyle = .normal
         config.navigationViewBackgroundColor = "#2E2F30".color
@@ -285,6 +285,18 @@ extension PhotoTools {
         config.photoList.titleView.backgroundColor = UIColor.gray.withAlphaComponent(0.3)
         config.photoList.titleView.arrow.backgroundColor = "#B2B2B2".color
         config.photoList.titleView.arrow.arrowColor = "#2E2F30".color
+        
+        #if canImport(UIKit.UIGlassEffect)
+        if #available(iOS 26.0, *) {
+            config.photoList.filterButtonConfig = UIButton.Configuration.clearGlass()
+            config.photoList.cancelButtonConfig = UIButton.Configuration.clearGlass()
+            var titleButtonConfig = UIButton.Configuration.clearGlass()
+            titleButtonConfig.imagePlacement = .trailing
+            titleButtonConfig.imagePadding = 4
+            titleButtonConfig.baseForegroundColor = .label
+            config.photoList.titleButtonConfig = titleButtonConfig
+        }
+        #endif
         
         config.photoList.cell.customSelectableCellClass = PhotoPickerWeChatViewCell.self
         config.photoList.cell.selectBox.selectedBackgroundColor = wxColor
@@ -333,6 +345,10 @@ extension PhotoTools {
         config.previewView.livePhotoMark.blurStyle = .dark
         config.previewView.livePhotoMark.textColor = "#ffffff".color
         config.previewView.livePhotoMark.imageColor = "#ffffff".color
+        config.previewView.livePhotoMark.mutedImageColor = "#ffffff".color
+        config.previewView.HDRMark.blurStyle = .dark
+        config.previewView.HDRMark.imageColor = "#ffffff".color
+        
         config.previewView.bottomView.barStyle = .black
         config.previewView.bottomView.originalButtonTitleColor = .white
         config.previewView.bottomView.originalSelectBox.backgroundColor = .clear

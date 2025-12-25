@@ -121,6 +121,8 @@ public extension HX.ImageResource {
             public struct Cell {
                 /// 视频图标
                 public var video: ImageType = .local("hx_picker_cell_video_icon")
+                /// 实况图标
+                public var livePhoto: ImageType = .local("hx_picker_cell_livephoto_icon")
                 /// 已编辑照片图标
                 public var photoEdited: ImageType = .local("hx_picker_cell_photo_edit_icon")
                 /// 已编辑视频图标
@@ -136,7 +138,12 @@ public extension HX.ImageResource {
             
             public struct Filter {
                 /// 所有项目图标
-                public var any: ImageType = .local("hx_photo_list_filter_any")
+                public var any: ImageType = {
+                    if #available(iOS 26.0, *) {
+                        return .system("square.grid.3x3")
+                    }
+                    return .local("hx_photo_list_filter_any")
+                }()
                 /// 已编辑图标
                 public var edited: ImageType = .local("hx_photo_list_filter_edited")
                 /// 照片图标
@@ -176,6 +183,13 @@ public extension HX.ImageResource {
             public var videoPlay: ImageType = .local("hx_picker_cell_video_play")
             /// 实况图片标签图标
             public var livePhoto: ImageType = .local("hx_picker_livePhoto")
+            public var livePhotoDisable: ImageType = .local("hx_picker_livePhoto_disable")
+            /// 实况图片静音图标
+            public var livePhotoMuted: ImageType = .local("hx_picker_livePhoto_muted")
+            public var livePhotoMutedDisable: ImageType = .local("hx_picker_livePhoto_muted_disable")
+            /// HDR标签图标
+            public var HDR: ImageType = .local("hx_picker_HDR")
+            public var HDRDisable: ImageType = .local("hx_picker_HDR_disable")
         }
     }
     #endif

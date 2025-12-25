@@ -156,10 +156,11 @@ open class PhotoBrowser: PhotoPickerController {
             pageIndex: pageIndex,
             transitionalImage: transitionalImage
         )
-        browser.transitionAnimator = transitionAnimator
-        browser.transitionCompletion = transitionCompletion
         browser.numberOfPages = numberOfPages
         browser.assetForIndex = assetForIndex
+        browser.transitionAnimator = transitionAnimator
+        browser.transitionCompletion = transitionCompletion
+        browser.cellForIndex = cellForIndex
         browser.cellWillDisplay = cellWillDisplay
         browser.cellDidEndDisplaying = cellDidEndDisplaying
         browser.viewDidScroll = viewDidScroll
@@ -281,7 +282,7 @@ open class PhotoBrowser: PhotoPickerController {
     }
     
     public func addRightItem(customView: UIView) {
-        previewViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customView)
+        previewViewController?.navigationItem.rightBarButtonItem = .initCustomView(customView: customView)
     }
     
     @objc
@@ -306,6 +307,9 @@ open class PhotoBrowser: PhotoPickerController {
         pConfig.livePhotoMark.blurStyle = .dark
         pConfig.livePhotoMark.imageColor = "#ffffff".color
         pConfig.livePhotoMark.textColor = "#ffffff".color
+        pConfig.livePhotoMark.mutedImageColor = "#ffffff".color
+        pConfig.HDRMark.blurStyle = .dark
+        pConfig.HDRMark.imageColor = "#ffffff".color
         
         pConfig.loadNetworkVideoMode = config.loadNetworkVideoMode
         pConfig.customVideoCellClass = config.customVideoCellClass
@@ -360,7 +364,7 @@ open class PhotoBrowser: PhotoPickerController {
         if isShowDelete {
             previewViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(
                 title: .textManager.picker.browserDeleteTitle.text,
-                style: .done,
+                style: .plain,
                 target: self,
                 action: #selector(deletePreviewAsset)
             )
@@ -636,32 +640,26 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
     
     public func pickerController(
         _ pickerController: PhotoPickerController,
-        previewCellWillDisplay photoAsset: PhotoAsset,
+        previewCellWillDisplay cell: PhotoPreviewViewCell,
         at index: Int
     ) {
-        if let cell = getCell(for: index) {
-            cellWillDisplay?(cell, index, self)
-        }
+        cellWillDisplay?(cell, index, self)
     }
     
     public func pickerController(
         _ pickerController: PhotoPickerController,
-        previewCellDidEndDisplaying photoAsset: PhotoAsset,
+        previewCellDidEndDisplaying cell: PhotoPreviewViewCell,
         at index: Int
     ) {
-        if let cell = getCell(for: index) {
-            cellDidEndDisplaying?(cell, index, self)
-        }
+        cellDidEndDisplaying?(cell, index, self)
     }
     
     public func pickerController(
         _ pickerController: PhotoPickerController,
-        previewDidEndDecelerating photoAsset: PhotoAsset,
+        previewDidEndDecelerating cell: PhotoPreviewViewCell,
         at index: Int
     ) {
-        if let cell = getCell(for: index) {
-            viewDidEndDecelerating?(cell, index, self)
-        }
+        viewDidEndDecelerating?(cell, index, self)
     }
     
     // MARK: 单独预览时的自定义转场动画

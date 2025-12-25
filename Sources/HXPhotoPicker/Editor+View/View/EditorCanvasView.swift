@@ -57,8 +57,10 @@ class EditorCanvasView: UIView {
         canvasView.bouncesZoom = false
         canvasView.automaticallyAdjustsScrollIndicatorInsets = false
         addSubview(canvasView)
-        if let window = UIApplication._keyWindow,
+        if let window = UIApplication.hx_keyWindow,
            let toolPicker = PKToolPicker.shared(for: window) {
+            toolPicker.overrideUserInterfaceStyle = .light
+            toolPicker.colorUserInterfaceStyle = .light
             canvasView.tool = toolPicker.selectedTool
             if let tool = toolPicker.selectedTool as? PKInkingTool {
                 toolWidth = tool.width

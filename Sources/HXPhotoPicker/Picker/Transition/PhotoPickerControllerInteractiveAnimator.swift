@@ -31,45 +31,19 @@ public class PhotoPickerControllerInteractiveAnimator: PhotoPickerControllerInte
         pickerController.view.addGestureRecognizer(panGestureRecognizer)
     }
     public override func startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning) {
+        guard let pickerController = transitionContext.viewController(forKey: .from) as? PhotoPickerController,
+              let toVC = transitionContext.viewController(forKey: .to) else {
+            cancel()
+            transitionContext.completeTransition(false)
+            return
+        }
         self.transitionContext = transitionContext
-        let pickerController = transitionContext.viewController(forKey: .from) as! PhotoPickerController
-        let toVC = transitionContext.viewController(forKey: .to)!
+        
         pickerControllerBackgroundColor = pickerController.view.backgroundColor
         let containerView = transitionContext.containerView
-        let isChartlet: Bool
-        #if HXPICKER_ENABLE_EDITOR
-        isChartlet = toVC is EditorChartletListProtocol
-        #else
-        isChartlet = false
-        #endif
-        if (toVC.transitioningDelegate == nil || toVC is PhotoPickerController) && !isChartlet {
+        if toVC.view.superview == nil {
             containerView.addSubview(toVC.view)
-        }else {
-            let fromVC = transitionContext.viewController(forKey: .from)
-            if let vc = fromVC as? PhotoPickerController {
-                switch vc.config.pickerPresentStyle {
-                case .push(let rightSwipe):
-                    guard let rightSwipe = rightSwipe else {
-                        break
-                    }
-                    for type in rightSwipe.viewControlls where toVC.isKind(of: type) {
-                        containerView.addSubview(toVC.view)
-                        break
-                    }
-                case .present(let rightSwipe):
-                    guard let rightSwipe = rightSwipe else {
-                        break
-                    }
-                    for type in rightSwipe.viewControlls where toVC.isKind(of: type) {
-                        containerView.addSubview(toVC.view)
-                        break
-                    }
-                default:
-                    break
-                }
-            }
         }
-        
         let bgView = UIView(frame: containerView.bounds)
         bgView.backgroundColor = .black.withAlphaComponent(0.1)
         containerView.addSubview(bgView)

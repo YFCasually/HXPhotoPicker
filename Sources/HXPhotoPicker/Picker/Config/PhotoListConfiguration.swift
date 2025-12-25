@@ -43,6 +43,24 @@ public struct PhotoListConfiguration {
     @available(*, deprecated, message: "Use the registration APIs declared in the PhotoNavigationItem protocol")
     public var cancelPosition: PhotoPickerViewController.CancelPosition = .right
     
+    @available(iOS 15.0, *)
+    public var cancelButtonConfig: UIButton.Configuration? {
+        get { _cancelButtonConfig as? UIButton.Configuration }
+        set { _cancelButtonConfig = newValue }
+    }
+    
+    @available(iOS 15.0, *)
+    public var filterButtonConfig: UIButton.Configuration? {
+        get { _filterButtonConfig as? UIButton.Configuration }
+        set { _filterButtonConfig = newValue }
+    }
+    
+    @available(iOS 26.0, *)
+    public var titleButtonConfig: UIButton.Configuration? {
+        get { _titleButtonConfig as? UIButton.Configuration }
+        set { _titleButtonConfig = newValue }
+    }
+    
     /// Cancel button image name
     /// 取消按钮图片名
     public var cancelImageName: String {
@@ -188,6 +206,10 @@ public struct PhotoListConfiguration {
     /// 预览样式
     public var previewStyle: PhotoPickerPreviewJumpStyle = .push
     
+    /// 初始滚动到指定`PhotoAsset`对应的标识，为空时 默认滚动到最后一个选中的`PhotoAsset`
+    ///  PHAsset.localIdentifier / PhotoAsset.localAssetIdentifier
+    public var selectedAssetIdentifier: String?
+    
     public init() {
         #if HXPICKER_ENABLE_CAMERA && !targetEnvironment(macCatalyst)
         if #available(iOS 14.0, *), ProcessInfo.processInfo.isiOSAppOnMac {
@@ -197,6 +219,22 @@ public struct PhotoListConfiguration {
         }
         #else
         cameraType = .system(.init())
+        #endif
+        
+        #if canImport(UIKit.UIGlassEffect)
+        if #available(iOS 26.0, *) {
+            _filterButtonConfig = UIButton.Configuration.glass()
+            _cancelButtonConfig = UIButton.Configuration.glass()
+            var titleButtonConfig = UIButton.Configuration.glass()
+            titleButtonConfig.imagePlacement = .trailing
+            titleButtonConfig.imagePadding = 4
+            titleButtonConfig.baseForegroundColor = .label
+            _titleButtonConfig = titleButtonConfig
+            if !PhotoManager.isIos26Compatibility {
+                navigationTitle = AlbumGlassTitleView.self
+                photoToolbar = PhotoToolBarGlassView.self
+            }
+        }
         #endif
     }
     
@@ -214,6 +252,10 @@ public struct PhotoListConfiguration {
         filterThemeColor = color
         filterThemeDarkColor = color
     }
+    
+    var _cancelButtonConfig: Any?
+    var _filterButtonConfig: Any?
+    var _titleButtonConfig: Any?
 }
 
 extension PhotoListConfiguration {

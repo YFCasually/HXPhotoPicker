@@ -1,9 +1,65 @@
 # Release Notes
+    
+## 5.0.5
+
+- Compatible with `iOS 26`
+
+### Resolved
+
+- [[847]](https://github.com/SilenceLove/HXPhotoPicker/issues/847)
+- [[840]](https://github.com/SilenceLove/HXPhotoPicker/issues/840)
+- And some bugs...
+    
+## 5.0.4
+
+- Compatible with `iOS 26`
+
+### Resolved
+
+- [[820]](https://github.com/SilenceLove/HXPhotoPicker/issues/820)
+- [[819]](https://github.com/SilenceLove/HXPhotoPicker/issues/819)
+- And some bugs...
+    
+## 5.0.3
+
+### Add
+
+- Picker
+  - Added the ability to control the playback/mute of `LivePhoto`
+
+### Resolved
+
+- [[809]](https://github.com/SilenceLove/HXPhotoPicker/issues/809)
+- [[805]](https://github.com/SilenceLove/HXPhotoPicker/issues/805)
+- [[803]](https://github.com/SilenceLove/HXPhotoPicker/issues/803)
+- And some bugs...
+    
+## 5.0.2
+
+### Resolved
+
+- [[797]](https://github.com/SilenceLove/HXPhotoPicker/issues/797)
+- [[792]](https://github.com/SilenceLove/HXPhotoPicker/issues/792)
+
+## 5.0.1
+
+### Add
+
+- Spanish, Portuguese languages
+
+### Resolved
+
+- [[787]](https://github.com/SilenceLove/HXPhotoPicker/issues/787) 
+- [[784]](https://github.com/SilenceLove/HXPhotoPicker/issues/784) 
+- [[782]](https://github.com/SilenceLove/HXPhotoPicker/issues/782) 
+- [[777]](https://github.com/SilenceLove/HXPhotoPicker/issues/777)
+- [[776]](https://github.com/SilenceLove/HXPhotoPicker/issues/776)
+- [[775]](https://github.com/SilenceLove/HXPhotoPicker/issues/775)
 
 ## 5.0.0
 
 - Minimum system version upgraded to `iOS 10`
-- Network image loading supports customization[HXImageViewProtocol](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/Core/Config/HXImageViewProtocol.swift)
+- Network image loading supports customization[HXImageViewProtocol](https://github.com/SilenceLove/HXPhotoPicker/blob/master/Sources/HXPhotoPicker/Core/Config/HXImageViewProtocol.swift)
   - [Kingfisher](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/KFImageView.swift)
   - [SDWebImage](https://github.com/SilenceLove/HXPhotoPicker/tree/master/Sources/ImageView/SDImageView.swift)
   

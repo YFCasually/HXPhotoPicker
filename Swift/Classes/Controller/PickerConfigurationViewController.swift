@@ -335,7 +335,27 @@ extension PickerConfigurationViewController {
             "russian",
             "german",
             "french",
-            "Arabic"
+            "Arabic",
+            "Spanish",
+            "Portuguese",
+            "amharic",
+            "bengali",
+            "divehi",
+            "persian",
+            "filipino",
+            "hausa",
+            "hebrew",
+            "hindi",
+            "italian",
+            "malay",
+            "nepali",
+            "punjabi",
+            "sinhala",
+            "swahili",
+            "syriac",
+            "turkish",
+            "ukrainian",
+            "urdu"
         ]
         for title in titles {
             alert.addAction(UIAlertAction.init(title: title, style: .default, handler: { [weak self] (action) in
@@ -972,6 +992,46 @@ extension LanguageType {
             return "法语"
         case .arabic:
             return "阿拉伯"
+        case .spanish:
+            return "西班牙"
+        case .portuguese:
+            return "葡萄牙"
+        case .amharic:
+            return "阿姆哈拉语"
+        case .bengali:
+            return "孟加拉语"
+        case .divehi:
+            return "迪维希语"
+        case .persian:
+            return "波斯语"
+        case .filipino:
+            return "菲律宾语"
+        case .hausa:
+            return "豪萨语"
+        case .hebrew:
+            return "希伯来语"
+        case .hindi:
+            return "印地语"
+        case .italian:
+            return "意大利语"
+        case .malay:
+            return "马来语"
+        case .nepali:
+            return "尼泊尔语"
+        case .punjabi:
+            return "旁遮普语"
+        case .sinhala:
+            return "僧伽罗语"
+        case .swahili:
+            return "斯瓦希里语"
+        case .syriac:
+            return "叙利亚语"
+        case .turkish:
+            return "土耳其语"
+        case .ukrainian:
+            return "乌克兰语"
+        case .urdu:
+            return "乌尔都语"
         case .custom:
             return "自定义"
         }
@@ -1120,6 +1180,46 @@ extension LanguageType {
             return .french
         case 12:
             return .arabic
+        case 13:
+            return .spanish
+        case 14:
+            return .portuguese
+        case 15:
+            return .amharic
+        case 16:
+            return .bengali
+        case 17:
+            return .divehi
+        case 18:
+            return .persian
+        case 19:
+            return .filipino
+        case 20:
+            return .hausa
+        case 21:
+            return .hebrew
+        case 22:
+            return .hindi
+        case 23:
+            return .italian
+        case 24:
+            return .malay
+        case 25:
+            return .nepali
+        case 26:
+            return .punjabi
+        case 27:
+            return .sinhala
+        case 28:
+            return .swahili
+        case 29:
+            return .syriac
+        case 30:
+            return .turkish
+        case 31:
+            return .ukrainian
+        case 32:
+            return .urdu
         default:
             return .system
         }

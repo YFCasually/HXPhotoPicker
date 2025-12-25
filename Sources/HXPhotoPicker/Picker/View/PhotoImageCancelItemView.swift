@@ -23,19 +23,25 @@ public class PhotoImageCancelItemView: UIView, PhotoNavigationItem {
     func initView() {
         button = UIButton(type: .custom)
         let imageName = PhotoManager.isDark ? config.photoList.cancelDarkImageName : config.photoList.cancelImageName
-        button.setImage(imageName.image, for: .normal)
+        var image: UIImage? = imageName.image
+        if #available(iOS 15.0, *), !PhotoManager.isIos26Compatibility {
+            button.configuration = config.photoList.cancelButtonConfig
+            image = image?.withRenderingMode(.alwaysTemplate)
+        }
+        button.setImage(image, for: .normal)
         button.addTarget(self, action: #selector(didCancelClick), for: .touchUpInside)
         addSubview(button)
-        if let btnSize = button.currentImage?.size {
-            button.size = btnSize
-            size = button.size
-        }
+
         setColor()
     }
     
     func setColor() {
         let imageName = PhotoManager.isDark ? config.photoList.cancelDarkImageName : config.photoList.cancelImageName
-        button.setImage(imageName.image, for: .normal)
+        var image: UIImage? = imageName.image
+        if #available(iOS 15.0, *), !PhotoManager.isIos26Compatibility {
+            image = image?.withRenderingMode(.alwaysTemplate)
+        }
+        button.setImage(image, for: .normal)
         guard let color = PhotoManager.isDark ? config.navigationDarkTintColor : config.navigationTintColor else {
             return
         }
@@ -45,6 +51,21 @@ public class PhotoImageCancelItemView: UIView, PhotoNavigationItem {
     @objc
     func didCancelClick() {
         itemDelegate?.photoControllerDidCancel()
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        let buttonSize = button.sizeThatFits(self.bounds.size)
+        button.frame = CGRect(
+            x: (self.bounds.width - buttonSize.width) / 2,
+            y: (self.bounds.height - buttonSize.height) / 2,
+            width: buttonSize.width,
+            height: buttonSize.height
+        )
+    }
+    
+    public override func sizeThatFits(_ size: CGSize) -> CGSize {
+        return button.sizeThatFits(size)
     }
     
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

@@ -31,6 +31,7 @@ public class PhotoPreviewViewController: PhotoBaseViewController {
     var assetForIndex: PhotoBrowser.RequiredAsset?
     
     var selectBoxControl: SelectBoxView!
+    var selectBoxItem: UIBarButtonItem!
     var interactiveTransition: PickerInteractiveTransition?
     weak var beforeNavDelegate: UINavigationControllerDelegate?
     var isPreviewSelect: Bool = false
@@ -70,7 +71,7 @@ public class PhotoPreviewViewController: PhotoBaseViewController {
     }
     
     public func photoAsset(for index: Int) -> PhotoAsset? {
-        if !previewAssets.isEmpty && index > 0 || index < previewAssets.count {
+        if !previewAssets.isEmpty, index >= 0, index < previewAssets.count {
             return previewAssets[index]
         }
         return assetForIndex?(index)
@@ -238,7 +239,7 @@ extension PhotoPreviewViewController {
         collectionViewLayout.minimumLineSpacing = 0
         collectionViewLayout.minimumInteritemSpacing = 0
         collectionViewLayout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: collectionViewLayout)
+        collectionView = HXCollectionView(frame: view.bounds, collectionViewLayout: collectionViewLayout)
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -277,6 +278,8 @@ extension PhotoPreviewViewController {
         selectBoxControl.backgroundColor = .clear
         selectBoxControl.addTarget(self, action: #selector(didSelectBoxControlClick), for: UIControl.Event.touchUpInside)
         
+        selectBoxItem = .init(customView: selectBoxControl)
+        
         if previewType != .none && pickerController.modalPresentationStyle != .custom {
             updateColors()
         }
@@ -286,34 +289,44 @@ extension PhotoPreviewViewController {
                     let imageType: HX.ImageResource.ImageType = pickerController.config.photoList.previewStyle == .present ? .imageResource.picker.preview.back : .imageResource.picker.preview.cancel
                     let cancelItem = UIBarButtonItem(
                         image: imageType.image,
-                        style: .done,
+                        style: .plain,
                         target: self,
                         action: #selector(didCancelItemClick)
-                    )
+                    ).hidesShared()
                     navigationItem.leftBarButtonItem = cancelItem
                 }
                 if pickerConfig.isMultipleSelect {
-                    navigationItem.rightBarButtonItem = UIBarButtonItem(customView: selectBoxControl)
+                    navigationItem.rightBarButtonItem = selectBoxItem
                 }
             }else {
                 var cancelItem: UIBarButtonItem
                 if config.cancelType == .image {
                     let isDark = PhotoManager.isDark
-                    cancelItem = UIBarButtonItem(
+                    let item = UIBarButtonItem(
                         image: UIImage.image(
                             for: isDark ? config.cancelDarkImageName : config.cancelImageName
                         ),
-                        style: .done,
+                        style: .plain,
                         target: self,
                         action: #selector(didCancelItemClick)
                     )
+                    if #available(iOS 26.0, *), !PhotoManager.isIos26Compatibility  {
+                        cancelItem = item
+                    }else {
+                        cancelItem = item.hidesShared()
+                    }
                 }else {
-                    cancelItem = UIBarButtonItem(
+                    let item = UIBarButtonItem(
                         title: .textPreview.cancelTitle.text,
-                        style: .done,
+                        style: .plain,
                         target: self,
                         action: #selector(didCancelItemClick)
                     )
+                    if #available(iOS 26.0, *), !PhotoManager.isIos26Compatibility  {
+                        cancelItem = item
+                    }else {
+                        cancelItem = item.hidesShared()
+                    }
                 }
                 if config.cancelPosition == .left {
                     navigationItem.leftBarButtonItem = cancelItem
@@ -336,7 +349,11 @@ extension PhotoPreviewViewController {
                     }
                     if previewType != .browser {
                         if photoAsset.mediaType == .video && pickerConfig.isSingleVideo {
-                            selectBoxControl.isHidden = true
+                            if #available(iOS 16.0, *) {
+                                selectBoxItem.isHidden = true
+                            } else {
+                                selectBoxControl.isHidden = true
+                            }
                         } else {
                             updateSelectBox(photoAsset.isSelected, photoAsset: photoAsset)
                             selectBoxControl.isSelected = photoAsset.isSelected
@@ -352,10 +369,10 @@ extension PhotoPreviewViewController {
             if previewType == .picker {
                 let cancelItem = UIBarButtonItem(
                     image: .imageResource.picker.preview.cancel.image,
-                    style: .done,
+                    style: .plain,
                     target: self,
                     action: #selector(didCancelItemClick)
-                )
+                ).hidesShared()
                 navigationItem.leftBarButtonItem = cancelItem
             }
             if assetCount > 0 && currentPreviewIndex == 0 {
@@ -387,6 +404,7 @@ extension PhotoPreviewViewController {
         view.semanticContentAttribute = .forceLeftToRight
         collectionView.semanticContentAttribute = .forceLeftToRight
     }
+    
     func configBottomViewFrame() {
         if !config.isShowBottomView {
             return
@@ -615,7 +633,6 @@ extension PhotoPreviewViewController {
     
     @objc func didCancelItemClick() {
         pickerController.cancelCallback()
-        dismiss(animated: true, completion: nil)
     }
     
     func removeSelectedAssetWhenRemovingAssets(_ assets: [PhotoAsset]) {

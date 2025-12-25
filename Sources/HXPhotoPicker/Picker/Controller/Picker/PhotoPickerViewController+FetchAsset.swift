@@ -11,7 +11,9 @@ import UIKit
 extension PhotoPickerViewController {
     
     func fetchData() {
-        title = ""
+        if pickerConfig.albumShowMode.isPopView {
+            title = ""
+        }
         if pickerConfig.albumShowMode.isPop || pickerController.splitType.isSplit {
             if assetCollection != nil {
                 fetchPhotoAssets()
@@ -67,6 +69,7 @@ extension PhotoPickerViewController {
                 self.photoToolbar.selectedAssetDidChanged(self.pickerController.selectedAssetArray)
                 self.photoToolbar.updateSelectedAssets(self.pickerController.selectedAssetArray)
                 self.finishItem?.selectedAssetDidChanged(self.pickerController.selectedAssetArray)
+                self.updateToolbarFrame()
                 self.requestSelectedAssetFileSize()
             }
             if let previewViewController = self.navigationController?.topViewController as? PhotoPreviewViewController {
@@ -97,6 +100,16 @@ extension PhotoPickerViewController {
     
     func updateAssetCollections(_ collections: [PhotoAssetCollection]) {
         if pickerConfig.albumShowMode.isPopView, !pickerController.splitType.isSplit {
+            titleView.makeAlbumData(collections) { [weak self] assetCollection in
+                guard let self else { return }
+                if self.assetCollection == assetCollection {
+                    return
+                }
+                self.titleView.title = assetCollection.albumName
+                self.assetCollection = assetCollection
+                PhotoManager.HUDView.show(with: nil, delay: 0, animated: true, addedTo: navigationController?.view)
+                self.fetchPhotoAssets()
+            }
             albumView.selectedAssetCollection = assetCollection
             albumView.assetCollections = collections
             updateAlbumViewFrame()
@@ -104,6 +117,13 @@ extension PhotoPickerViewController {
     }
     
     func reloadAlbumData() {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async {
+                self.reloadAlbumData()
+            }
+            return
+        }
+        guard let albumView else { return }
         if pickerConfig.albumShowMode.isPopView, !pickerController.splitType.isSplit {
             albumView.selectedAssetCollection = assetCollection
             albumView.reloadData()

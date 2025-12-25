@@ -34,11 +34,11 @@ public final class PhotoManager: NSObject {
     }
     public static var HUDView: PhotoHUDProtocol.Type = ProgressHUD.self
     
-    #if canImport(Kingfisher)
+    #if canImport(Kingfisher) && HXPICKER_ENABLE_CORE_IMAGEVIEW_KF
     public static var ImageView: HXImageViewProtocol.Type = KFImageView.self
-    #elseif canImport(SDWebImage)
+    #elseif canImport(SDWebImage) && HXPICKER_ENABLE_CORE_IMAGEVIEW_SD
     public static var ImageView: HXImageViewProtocol.Type = SDImageView.self
-    #elseif canImport(SwiftyGif)
+    #elseif canImport(SwiftyGif) && HXPICKER_ENABLE_CORE_IMAGEVIEW_GIF
     public static var ImageView: HXImageViewProtocol.Type = GIFImageView.self
     #else
     public static var ImageView: HXImageViewProtocol.Type = HXImageView.self
@@ -61,6 +61,20 @@ public final class PhotoManager: NSObject {
             return languageType == .arabic
         }
     }
+    
+    static let isIos26Compatibility: Bool = {
+        guard #available(iOS 26, *) else {
+            return true
+        }
+        guard let isCompatibility = Bundle.main.object(forInfoDictionaryKey: "UIDesignRequiresCompatibility") as? Bool else {
+#if canImport(UIKit.UIGlassEffect)
+            return false
+#else
+            return true
+#endif
+        }
+        return isCompatibility
+    }()
     
     /// 当前语言文件，每次创建PhotoPickerController判断是否需要重新创建
     var languageBundle: Bundle?
@@ -93,6 +107,7 @@ public final class PhotoManager: NSObject {
     var cameraAlbumResult: PHFetchResult<PHAsset>?
     var cameraAlbumResultOptions: PickerAssetOptions?
     var thumbnailLoadMode: ThumbnailLoadMode = .complete
+    var pickerCaptureTime: TimeInterval = 0
     #endif
     
     #if HXPICKER_ENABLE_PICKER || HXPICKER_ENABLE_EDITOR
